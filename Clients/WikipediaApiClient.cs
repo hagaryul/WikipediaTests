@@ -6,11 +6,10 @@ namespace WikipediaTests.Clients;
 
 public class WikipediaApiClient : IWikipediaApiClient
 {
-    private readonly HttpClient _client;
+    private static readonly HttpClient _client = new();
 
-    public WikipediaApiClient()
+    static WikipediaApiClient()
     {
-        _client = new HttpClient();
         _client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (compatible; WikipediaTests/1.0)");
     }
 
@@ -29,13 +28,14 @@ public class WikipediaApiClient : IWikipediaApiClient
         return CleanHtml(html);
     }
 
-    private async Task<string> FindSectionIndexAsync(string pageName, string sectionAnchor)
+    private static async Task<string> FindSectionIndexAsync(string pageName, string sectionAnchor)
     {
-        var url = $"{Constants.WikipediaBaseUrl}/w/api.php?action=parse&page={pageName}&prop=sections&format=json";
+        var url = $"{Constants.WikipediaBaseUrl}/w/api.php?action=parse&page={pageName}&prop=tocdata&format=json";
         var response = await _client.GetStringAsync(url);
         var json = JsonDocument.Parse(response);
         var sections = json.RootElement
             .GetProperty("parse")
+            .GetProperty("tocdata")
             .GetProperty("sections");
 
         foreach (var section in sections.EnumerateArray())
@@ -44,21 +44,30 @@ public class WikipediaApiClient : IWikipediaApiClient
                 return section.GetProperty("index").GetString() ?? "0";
         }
 
-        throw new Exception($"Section '{sectionAnchor}' not found in page '{pageName}'");
+        throw new InvalidOperationException($"Section '{sectionAnchor}' not found in page '{pageName}'");
     }
 
     private static string CleanHtml(string html)
     {
-        html = Regex.Replace(html, @"<sup[^>]*>.*?</sup>", " ", RegexOptions.Singleline);
-        html = Regex.Replace(html, @"<div[^>]*mw-references-wrap[^>]*>.*?</div>", " ", RegexOptions.Singleline);
-        html = Regex.Replace(html, @"<div[^>]*mw-heading[^>]*>.*?</div>", " ", RegexOptions.Singleline);
-        html = Regex.Replace(html, @"<[^>]+>", " ");
+        html = RemoveCitationNumbers(html);
+        html = RemoveReferencesSection(html);
+        html = RemoveSectionHeading(html);
+        html = StripHtmlTags(html);
         html = System.Net.WebUtility.HtmlDecode(html);
         return html;
     }
 
-    public void Dispose()
-    {
-        _client.Dispose();
-    }
+    private static string RemoveCitationNumbers(string html) =>
+        Regex.Replace(html, @"<sup[^>]*>.*?</sup>", " ", RegexOptions.Singleline);
+
+    private static string RemoveReferencesSection(string html) =>
+        Regex.Replace(html, @"<div[^>]*mw-references-wrap[^>]*>.*?</div>", " ", RegexOptions.Singleline);
+
+    private static string RemoveSectionHeading(string html) =>
+        Regex.Replace(html, @"<div[^>]*mw-heading[^>]*>.*?</div>", " ", RegexOptions.Singleline);
+
+    private static string StripHtmlTags(string html) =>
+        Regex.Replace(html, @"<[^>]+>", " ");
+
+    public void Dispose() { }
 }
