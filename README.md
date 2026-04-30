@@ -56,6 +56,13 @@ Selects the "Dark" color theme from the Appearance panel and validates that the 
 
 ## How to Run
 
+### Clone the repository
+
+```bash
+git clone https://github.com/hagaryul/WikipediaTests.git
+cd WikipediaTests
+```
+
 ### Prerequisites
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
