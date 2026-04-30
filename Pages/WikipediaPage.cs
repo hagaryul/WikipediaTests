@@ -44,23 +44,14 @@ public class WikipediaPage
     {
         var nonLinks = await _page.EvaluateAsync<string[]>(
             @"(tableTitle) => {
-                const allTables = document.querySelectorAll('table');
-                let targetTable = null;
-                allTables.forEach(table => {
-                    if (table.innerText.includes(tableTitle)) {
-                        targetTable = table;
-                    }
-                });
+                const targetTable = Array.from(document.querySelectorAll('table'))
+                    .find(table => table.innerText.includes(tableTitle));
+
                 if (!targetTable) return [];
-                const nonLinks = [];
-                const items = targetTable.querySelectorAll('li');
-                items.forEach(item => {
-                    const hasLink = item.querySelector('a') !== null;
-                    if (!hasLink) {
-                        nonLinks.push(item.innerText.trim());
-                    }
-                });
-                return nonLinks;
+
+                return Array.from(targetTable.querySelectorAll('li'))
+                    .filter(item => item.querySelector('a') === null)
+                    .map(item => item.innerText.trim());
             }",
             tableTitle
         );
@@ -71,6 +62,7 @@ public class WikipediaPage
     {
         await _page.Locator($"#{themeInputId}").ClickAsync();
     }
+
     public async Task<string> GetHtmlThemeClassAsync()
     {
         return await _page.EvaluateAsync<string>(@"() => {

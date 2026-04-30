@@ -5,13 +5,6 @@ using System.Diagnostics;
 
 namespace WikipediaTests.Reporting;
 
-public class TestResult
-{
-    public string Name { get; set; } = "";
-    public string Outcome { get; set; } = "";
-    public string Duration { get; set; } = "";
-}
-
 [AttributeUsage(AttributeTargets.Class, Inherited = true)]
 public class CollectResultsAttribute : Attribute, ITestAction
 {

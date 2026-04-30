@@ -1,12 +1,11 @@
-using System.IO;
-
 namespace WikipediaTests.Reporting;
 
 public static class ReportGenerator
 {
     private static readonly string TemplatesDir = Path.Combine(
-     AppContext.BaseDirectory, "..", "..", "..", "Reporting", "Templates"
- );
+        AppContext.BaseDirectory, "..", "..", "..", "Reporting", "Templates"
+    );
+
     private static readonly string OutputDir = Path.Combine(
         AppContext.BaseDirectory, "..", "..", "..", "TestResults"
     );
@@ -23,26 +22,25 @@ public static class ReportGenerator
         Directory.CreateDirectory(OutputDir);
         File.WriteAllText(Path.Combine(OutputDir, "report.html"), filledHtml);
         File.WriteAllText(Path.Combine(OutputDir, "report.css"), filledCss);
-
     }
 
-    private static TestSummary BuildSummary(List<TestResult> results)
+    private static TestSummary BuildSummary(IEnumerable<TestResult> results)
     {
-        var total = results.Count;
-        var passed = results.Count(r => r.Outcome == "Passed");
-        var failed = total - passed;
+        var resultsList = results.ToList();
+        var total = resultsList.Count;
+        var passed = resultsList.Count(r => r.Outcome == "Passed");
 
         return new TestSummary
         {
             Total = total,
             Passed = passed,
-            Failed = failed,
+            Failed = total - passed,
             Date = DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
             PassRate = total > 0 ? (int)Math.Round((double)passed / total * 100) : 0
         };
     }
 
-    private static string FillTemplate(string template, List<TestResult> results, TestSummary summary)
+    private static string FillTemplate(string template, IEnumerable<TestResult> results, TestSummary summary)
     {
         var rows = string.Join("\n", results.Select((r, i) =>
         {
@@ -66,13 +64,4 @@ public static class ReportGenerator
             .Replace("{{DATE}}", summary.Date)
             .Replace("{{ROWS}}", rows);
     }
-}
-
-public class TestSummary
-{
-    public int Total { get; set; }
-    public int Passed { get; set; }
-    public int Failed { get; set; }
-    public int PassRate { get; set; }
-    public string Date { get; set; } = "";
 }
