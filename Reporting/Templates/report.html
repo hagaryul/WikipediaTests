@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Report — Wikipedia Automation</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="report.css">
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="logo-area">
+      <div>
+        <div class="genpact-logo">GENPACT</div>
+        <div class="project-name">Wikipedia Automation Suite</div>
+      </div>
+    </div>
+    <div class="date">Generated: {{DATE}}</div>
+  </header>
+
+  <h1>Test Report</h1>
+  <p class="subtitle">Playwright (software) — Wikipedia UI & API Automation</p>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-value">{{TOTAL}}</div>
+      <div class="stat-label">Total</div>
+    </div>
+    <div class="stat green">
+      <div class="stat-value">{{PASSED}}</div>
+      <div class="stat-label">Passed</div>
+    </div>
+    <div class="stat red">
+      <div class="stat-value">{{FAILED}}</div>
+      <div class="stat-label">Failed</div>
+    </div>
+    <div class="stat accent">
+      <div class="stat-value">{{PASS_RATE}}%</div>
+      <div class="stat-label">Pass Rate</div>
+    </div>
+  </div>
+
+  <div class="progress-bar"><div class="progress-fill"></div></div>
+
+  <table>
+    <thead>
+      <tr>
+        <th></th>
+        <th>Test Name</th>
+        <th>Status</th>
+        <th>Duration</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{ROWS}}
+    </tbody>
+  </table>
+
+  <footer>Wikipedia Automation · Genpact Assignment · {{DATE}}</footer>
+</div>
+</body>
+</html>
